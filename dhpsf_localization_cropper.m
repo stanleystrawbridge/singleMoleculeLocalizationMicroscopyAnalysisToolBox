@@ -1,11 +1,29 @@
-% Cropping for Double Helix Point Spead Function SMLM Data
-% 1.) Place all coordinate csv's into a single data_path folder
-% 2.) provide the full data path in user inputs (E.g. C:\my_data_folder)
-% 3.) Set wether data has tracked or not (true or false)
-% 4.) Set the limits for cropping in nm, usally +/- 2000nm. 
+% Cropping Double Helix Point Spead Function SMLM Data 
+%
+% Removes localizations that reside outside of the expected 4 um range 
+% (+/- 2 um) in the z-axis
+%
+% INPUTS a directory containing csv's output from either easyDHPSF or
+% tracked data from the trakectory-analysis package
+% (https://github.com/TheLaueLab/trajectory-analysis) and the user defined
+% parameters below
+%
+% OUTPUTS all data will be output into a new directory in the same path as
+% the input directory, named the same as the input directory but appended
+% with '_cropped' (E.g. .\data .\data_cropped). The ouput directory
+% contains all of the cropped csv's with the same name as they had in the
+% input directory and a directory names 'figures' (E.g.
+% .\data_cropped\figures). This houses xyz-coordinates plotted from
+% different perspectives. Each perspective is saved as a png and an svg.
+% There is also a fig version which can be opend in MATLAB.
+%
+% 1.) Place all coordinate csv's into a single data_path folder 
+% 2.) provide the full data path in user inputs (E.g. C:\my_data_folder) 
+% 3.) Set wether data has tracked or not (true or false) 
+% 4.) Set the limits for cropping in nm, usally +/- 2000nm.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% USER INPUTS
+% USER INPUT PARAMETERS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 data_path = 'D:\test\raw_data';
@@ -13,10 +31,9 @@ tracked = false; % true/flase
 z_crop_limits = [-2000, 2000]; % nm
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% BEGING CROPPING
+% END USER INPUTS
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
  
-
 % Crop localizations
 cropped_path = strcat(data_path,'_cropped');
 figure_path = fullfile(cropped_path,'figures');
