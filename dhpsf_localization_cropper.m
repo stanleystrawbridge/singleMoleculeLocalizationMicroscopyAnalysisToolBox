@@ -1,12 +1,16 @@
 % Cropping Double Helix Point Spead Function SMLM Data 
 %
 % Removes localizations that reside outside of the expected 4 um range 
-% (+/- 2 um) in the z-axis
+% (+/- 2 um) in the z-axis.
 %
 % INPUTS a directory containing csv's output from either easyDHPSF or
 % tracked data from the trakectory-analysis package
 % (https://github.com/TheLaueLab/trajectory-analysis) and the user defined
-% parameters below
+% parameters below:
+% 1.) Place all coordinate csv's into a single data_path directory 
+% 2.) provide the full data path in user inputs (E.g. C:\data) 
+% 3.) Set wether data has been tracked or not (true or false) 
+% 4.) Set the limits for cropping in nm, usally +/- 2000nm.
 %
 % OUTPUTS all data will be output into a new directory in the same path as
 % the input directory, named the same as the input directory but appended
@@ -16,11 +20,6 @@
 % .\data_cropped\figures). This houses xyz-coordinates plotted from
 % different perspectives. Each perspective is saved as a png and an svg.
 % There is also a fig version which can be opend in MATLAB.
-%
-% 1.) Place all coordinate csv's into a single data_path folder 
-% 2.) provide the full data path in user inputs (E.g. C:\my_data_folder) 
-% 3.) Set wether data has tracked or not (true or false) 
-% 4.) Set the limits for cropping in nm, usally +/- 2000nm.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % USER INPUT PARAMETERS
