@@ -1,14 +1,8 @@
 # singleMoleculeLocalizationMicroscopyAnalysisToolBox
 Short, and not so short, scripts to aid in the analysis of SMLM data.
 
-Analysis of DHPSF SMLM data
+>>2024_steindel_and_davis_et_al
 
-Brief
-1.) easyDHPSF
-2.) Particle Tracking
-3.) Cropping
-4.) 
+main_calculaate_localization_precision.m determines the standard deviation in the x, y, and z for a particle trajectory.
 
-Detailed
-3.) Cropping
-NB CHECK YOUR CALIBRATION FILE FOR RANGE!
+Use case: Steindel and Davis, et al., use this as a control to show that trajectories in live cells are moving faster trajectories in fixed cells.
