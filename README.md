@@ -1,7 +1,7 @@
 # singleMoleculeLocalizationMicroscopyAnalysisToolBox
-Short, and not so short, scripts to aid in the analysis of SMLM data.
+Short, and not so short, scripts to aid in the analysis of single molecule localization microscopy data.
 
->>2024_steindel_and_davis_et_al
+>2024_steindel_and_davis_et_al
 
 main_calculaate_localization_precision.m determines the standard deviation in the x, y, and z for a particle trajectory.
 
