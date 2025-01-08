@@ -1,0 +1,3 @@
+python src\trajectory-analysis-master\trajectoryAnalysis.py data\small_data_set -numDimensions 3 -minNumPositions 1 -maxJumpDistance 800 -maxFrameGap 2 -saveTracks -savePositionsFramesIntensities
+
+python src\trajectory-analysis-master\trajectoryAnalysis.py data\large_data_set -numDimensions 3 -minNumPositions 1 -maxJumpDistance 800 -maxFrameGap 2 -saveTracks -savePositionsFramesIntensities
