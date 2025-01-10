@@ -5,7 +5,7 @@ addpath('src')
 
 data_sets = {'small_data_set_out','large_data_set_out'};
 
-for i = 1:numel(data_sets)
+for i = 2:numel(data_sets)
    
     output_folder = fullfile('output',data_sets{i});
     mkSaveFolder(output_folder)   
