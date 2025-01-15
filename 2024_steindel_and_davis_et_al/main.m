@@ -5,7 +5,7 @@ addpath('src')
 
 data_sets = {'small_data_set_out','large_data_set_out'};
 
-for i = 2:numel(data_sets)
+for i = 1%:numel(data_sets)
    
     output_folder = fullfile('output',data_sets{i});
     mkSaveFolder(output_folder)   
@@ -14,9 +14,9 @@ for i = 2:numel(data_sets)
     
     precision = calculatePrecision(data_files);
     
-    % save precision
+    calculateStatistics(precision,data_sets{i})
 
-    plotPrecision(precision);
+    plotPrecision(precision,data_sets{i});
 
 end
 
@@ -118,7 +118,18 @@ function std_dev = precisionCalculator(data_files) %-----------------------
 end %----------------------------------------------------------------------
 
 
-function plotPrecision(precision) %----------------------------------------
+function plotPrecision(precision,data_sets) %------------------------------
+
+    figure
+    boxplot(precision.x_std,...
+        strcat(precision.mll2,'_',precision.media,'_',precision.status));
+
+    ylim([0,max(precision.x_std)])
+
+end %----------------------------------------------------------------------
+
+
+function plotPrecision(precision,data_sets) %------------------------------
 
     figure
     boxplot(precision.x_std,...
