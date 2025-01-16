@@ -5,7 +5,7 @@ addpath('src')
 
 data_sets = {'small_data_set_out','large_data_set_out'};
 
-for i = 1%:numel(data_sets)
+for i = 2%:numel(data_sets)
    
     output_folder = fullfile('output',data_sets{i});
     mkSaveFolder(output_folder)   
@@ -15,7 +15,7 @@ for i = 1%:numel(data_sets)
     precision = calculatePrecision(data_files);
 
     stats = calculateStatistics(precision,output_folder);
-
+    
     % plotPrecision(precision,data_sets{i},output_folder);
 
 end
@@ -122,6 +122,8 @@ end %----------------------------------------------------------------------
 
 function stats = calculateStatistics(precision,output_folder) %------------
 
+    CritValType = "lsd";
+
     group_names = ...
         strcat(precision.mll2,'_',precision.media,'_',precision.status);
     
@@ -129,39 +131,73 @@ function stats = calculateStatistics(precision,output_folder) %------------
         'anovaP',[],'anova',[],'anovaMulticomp',[],'anovaGnames',[],...
         'kwP',[],'kw',[],'kwMulticomp',[],'kwGnames',[]);
 
-    if contains(output_folder,'small')
-        CritValType = "lsd";
-    else
-        CritValType = "hsd";
-    end
-
     for i = 1:numel(stats)
 
         % N-Way ANOVA (parametric)
         [stats(i).anovaP,~,stats(i).anova] = ...
             anovan(precision.(stats(i).dim),{group_names},"display","off");
         [stats(i).anovaMulticomp,~,~,stats(i).anovaGnames] = ...
-            multcompare(stats(i).anova,"CriticalValueType",CritValType,"display","off");        
+            multcompare(stats(i).anova,"CriticalValueType",...
+            CritValType,"display","off");        
 
         % Kruskal-Wallis Test (nonparametric)
         [stats(i).kwP,~,stats(i).kw] = kruskalwallis(...
             precision.(stats(i).dim),group_names,"off");
         [stats(i).kwMulticomp,~,~,stats(i).kwGnames] = ...
-            multcompare(stats(i).kw,"CriticalValueType",CritValType,"display","off");                   
+            multcompare(stats(i).kw,"CriticalValueType",...
+            CritValType,"display","off");                   
 
-    end
+    end        
 
-    saveStats(stats);
-
-    save(fullfile(output_folder,"stats"),"stats")
+    saveStats(stats,output_folder);
 
 end %----------------------------------------------------------------------
 
 
-function saveStats(stats) %------------------------------------------------
+function saveStats(stats,output_folder) %----------------------------------
+
+    % Write data to m file    
+    obj_save_name = fullfile(output_folder,"obj_stats");
+    save(obj_save_name,"stats")
     
+    % Write data to text file
+    txt_save_name = fullfile(output_folder,"stats.txt");
     
+    fileID = fopen( txt_save_name,'w');     
     
+    fprintf(fileID,'%-20s\n',...
+        string(extractBetween(output_folder, '\','_out')));
+    fprintf(fileID,'\n\n');
+
+    fprintf(fileID,'GROUPS\n');    
+    for i = 1:numel(stats(1).kwGnames)
+        fprintf(fileID,'%-2s %-10s\n', num2str(i), stats(1).kwGnames{i});
+    end
+    fprintf(fileID,'\n\n');
+
+    for i = 1:numel(stats)
+    
+        fprintf(fileID,'precision %-10s\n\n',stats(i).dim);
+    
+        fprintf(fileID,'ANOVA\n');
+        fprintf(fileID,'%-2u %-2u %-5.4f \n',...
+            [stats(i).anovaMulticomp(:,[1 2 6]),...
+            stats(i).kwMulticomp(:,6)]');
+        fprintf(fileID,'\n\n');
+
+        fprintf(fileID,'Kruskal-Wallis\n');
+        fprintf(fileID,'%-2u %-2u %-5.4f \n',...
+            stats(i).kwMulticomp(:,[1 2 6])');
+        fprintf(fileID,'\n\n');
+
+    end
+
+    fclose(fileID);
+
+
+    % 
+    % fprintf(fileID,'%6.2f %12.8f\n',A);
+
 end %----------------------------------------------------------------------
 
 
