@@ -147,9 +147,7 @@ function stats = calculateStatistics(precision,output_folder) %------------
         [stats(i).kwP,~,stats(i).kw] = kruskalwallis(...
             precision.(stats(i).dim),group_names,"off");
         [stats(i).kwMulticomp,~,~,stats(i).kwGnames] = ...
-            multcompare(stats(i).kw,"CriticalValueType",CritValType,"display","off");           
-
-        
+            multcompare(stats(i).kw,"CriticalValueType",CritValType,"display","off");                   
 
     end
 
