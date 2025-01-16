@@ -156,11 +156,11 @@ end %----------------------------------------------------------------------
 
 function saveStats(stats,output_folder) %----------------------------------
 
-    % Write data to m file    
+    % Write data to m file_________________________________________________
     obj_save_name = fullfile(output_folder,"obj_stats");
     save(obj_save_name,"stats")
     
-    % Write data to text file
+    % Write data to text file______________________________________________
     txt_save_name = fullfile(output_folder,"stats.txt");
     
     fileID = fopen( txt_save_name,'w');     
@@ -175,23 +175,15 @@ function saveStats(stats,output_folder) %----------------------------------
     end
     fprintf(fileID,'\n\n');
 
-    for i = 1:numel(stats)
-    
-        fprintf(fileID,'precision %-10s\n\n',stats(i).dim);
-    
+    for i = 1:numel(stats)    
+        fprintf(fileID,'precision %-10s\n\n',stats(i).dim);    
         fprintf(fileID,'%-4s %-4s %-7s %-7s \n','g1','g2','ANOVA','K-W');
         fprintf(fileID,'%-4u %-4u %-7.4f %-7.4f \n',...
             [stats(i).anovaMulticomp(:,[1 2 6]),...
             stats(i).kwMulticomp(:,6)]');
         fprintf(fileID,'\n\n');
-
     end
-
     fclose(fileID);
-
-
-    % 
-    % fprintf(fileID,'%6.2f %12.8f\n',A);
 
 end %----------------------------------------------------------------------
 
