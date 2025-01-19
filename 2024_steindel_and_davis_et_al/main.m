@@ -16,7 +16,7 @@ for i = 1%:numel(data_sets)
 
     stats = calculateStatistics(precision,output_folder);
     
-    % plotPrecision(precision,data_sets{i},output_folder);
+    % plotPrecision(precision,stats,output_folder);
 
 end
 
@@ -236,13 +236,31 @@ function saveStats(stats,output_folder) %----------------------------------
     save(obj_save_name,"stats")
     
     % Write data to text file______________________________________________
+
     txt_save_name = fullfile(output_folder,"stats.txt");
-    
-    fileID = fopen( txt_save_name,'w');     
-    
+    fileID = fopen( txt_save_name,'w'); 
+
     fprintf(fileID,'%-20s\n',...
         string(extractBetween(output_folder, '\','_out')));
     fprintf(fileID,'\n\n');
+
+    if contains(output_folder,'small')
+
+        
+
+    else
+
+
+
+    end
+    
+    fclose(fileID);
+
+    
+    
+       
+    
+   
 
     fprintf(fileID,'GROUPS\n');    
     for i = 1:numel(stats(1).kwGnames)
@@ -258,29 +276,38 @@ function saveStats(stats,output_folder) %----------------------------------
             stats(i).kwMulticomp(:,6)]');
         fprintf(fileID,'\n\n');
     end
-    fclose(fileID);
+
 
 end %----------------------------------------------------------------------
 
 
-function plotPrecision(precision,output_folder) %--------------------------
+function plotPrecision(precision,stats,output_folder) %--------------------
 
-    group_names = ...
-        strcat(precision.mll2,'_',precision.media,'_',precision.status);
+    if contains(output_folder,'small')
 
-    figure(1)
-    clf
-
-    if numel(group_names) == 5
+        
 
     else
-    
+
+
+
     end
-    boxplot(precision.x_std,...
-        strcat(precision.mll2,'_',precision.media,'_',precision.status));
 
-    ylim([0,max(precision.x_std)])
-
+    % group_names = ...
+    %     strcat(precision.mll2,'_',precision.media,'_',precision.status);
+    % 
+    % figure(1)
+    % clf
+    % 
+    % if numel(group_names) == 5
+    % 
+    % else
+    % 
+    % end
+    % boxplot(precision.x_std,...
+    %     strcat(precision.mll2,'_',precision.media,'_',precision.status));
+    % 
+    % ylim([0,max(precision.x_std)])
 
 end %----------------------------------------------------------------------
 
