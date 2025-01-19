@@ -143,7 +143,17 @@ function stats = calculateStatistics(precision,output_folder) %------------
 
         stats.group_name = live_group_names;
         stats.p_value = zeros(N_live_groups, N_precision_types);
+        
+        stats.p_adjusted = stats.p_value;
+        
+        stats.live_mu = stats.p_value;
+        stats.live_sigma = stats.p_value;
+        stats.live_n = ;
 
+        stats.fixed_mu = mean(fixed_sample{:,1:4});
+        stats.fixed_sigma = std(fixed_sample{:,1:4});
+        stats.live_n = ;
+        
         for i = 1:N_live_groups
 
             live_sample_idx = strcmp(group_names,live_group_names(i));
@@ -153,7 +163,8 @@ function stats = calculateStatistics(precision,output_folder) %------------
                 
                 stats.p_value(i,j) = ranksum(...
                     fixed_sample.(stats.precision_dim(j)),...
-                    live_sample.(stats.precision_dim(j)),"tail","left");
+                    live_sample.(stats.precision_dim(j)),...
+                    "tail","left");
 
             end
     
@@ -164,13 +175,36 @@ function stats = calculateStatistics(precision,output_folder) %------------
 
     else
 
-        % compare live and fixed camples on a genotype/media combo basis
-        
+        % compare live and fixed camples on a genotype/media combo basis        
+        stats.group_name = erase(unique_groups,'_fixed');
+        stats.group_name = erase(stats.group_name,'_live');
+        stats.group_name = unique(stats.group_name);
+        N_groups = numel(fixed_group_names);
 
+        stats.p_value = zeros(N_groups, N_precision_types);
 
-    end
-    
+        for i = 1:N_groups            
+            
+            fixed_sample_idx = strcmp(group_names,...
+                strcat(stats.group_name(i), '_fixed'));
+            fixed_sample = precision(fixed_sample_idx,:);
 
+            live_sample_idx = strcmp(group_names,...
+                strcat(stats.group_name(i),'_live'));
+            live_sample = precision(live_sample_idx,:);
+
+            for j = 1:N_precision_types
+            
+                stats.p_value(i,j) = ranksum(...
+                    fixed_sample.(stats.precision_dim(j)),...
+                    live_sample.(stats.precision_dim(j)),...
+                    "tail","left");
+            
+            end
+
+        end
+
+    end    
 
 end %----------------------------------------------------------------------
 

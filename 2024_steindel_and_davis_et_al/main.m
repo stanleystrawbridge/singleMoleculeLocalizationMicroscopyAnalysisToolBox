@@ -14,7 +14,7 @@ for i = 1%:numel(data_sets)
     
     precision = calculatePrecision(data_files);
 
-    % stats = calculateStatistics(precision,output_folder);
+    stats = calculateStatistics(precision,output_folder);
     
     % plotPrecision(precision,data_sets{i},output_folder);
 
@@ -142,35 +142,89 @@ function stats = calculateStatistics(precision,output_folder) %------------
         N_live_groups = numel(live_group_names);
 
         stats.group_name = live_group_names;
-        stats.p_value = zeros(N_live_groups, N_precision_types);
+        stats.p_value = zeros(N_live_groups, N_precision_types);               
+        
+        stats.live_mu = stats.p_value;
+        stats.live_sigma = stats.p_value;
+        stats.live_n =  stats.p_value(:,1);
+
+        stats.fixed_mu = mean(fixed_sample{:,1:4});
+        stats.fixed_sigma = std(fixed_sample{:,1:4});
+        stats.fixed_n = size(fixed_sample{:,1:4},1);
 
         for i = 1:N_live_groups
 
             live_sample_idx = strcmp(group_names,live_group_names(i));
             live_sample = precision(live_sample_idx,:);
-    
+        
+            stats.live_mu(i,:) = mean(live_sample{:,1:4});
+            stats.live_sigma(i,:) = std(live_sample{:,1:4});
+            stats.live_n(i) =  size(live_sample{:,1:4},1);
+
             for j = 1:N_precision_types
                 
                 stats.p_value(i,j) = ranksum(...
                     fixed_sample.(stats.precision_dim(j)),...
-                    live_sample.(stats.precision_dim(j)),"tail","left");
+                    live_sample.(stats.precision_dim(j)),...
+                    "tail","left");
 
             end
     
         end
         
         % Bonferoni correction
-        stats.p_adjusted = stats.p_value * N_live_groups;
+        stats.p_value = stats.p_value * N_live_groups;
 
     else
 
-        % compare live and fixed camples on a genotype/media combo basis
-        
+        % compare live and fixed camples on a genotype/media combo basis        
+        stats.group_name = erase(unique_groups,'_fixed');
+        stats.group_name = erase(stats.group_name,'_live');
+        stats.group_name = unique(stats.group_name);
+        N_groups = numel(fixed_group_names);
 
+        stats.p_value = zeros(N_groups, N_precision_types);
 
-    end
+        stats.live_mu = stats.p_value;
+        stats.live_sigma = stats.p_value;
+        stats.live_n =  stats.p_value(:,1);
+
+        stats.fixed_mu = stats.p_value;
+        stats.fixed_sigma = stats.p_value;
+        stats.fixed_n =  stats.p_value(:,1);
+
+        for i = 1:N_groups            
+            
+            fixed_sample_idx = strcmp(group_names,...
+                strcat(stats.group_name(i), '_fixed'));
+            fixed_sample = precision(fixed_sample_idx,:);
+
+            live_sample_idx = strcmp(group_names,...
+                strcat(stats.group_name(i),'_live'));
+            live_sample = precision(live_sample_idx,:);
+
+            stats.live_mu(i,:) = mean(live_sample{:,1:4});
+            stats.live_sigma(i,:) = std(live_sample{:,1:4});
+            stats.live_n(i) = size(live_sample{:,1:4},1);
     
+            stats.fixed_mu(i,:) = mean(fixed_sample{:,1:4});
+            stats.fixed_sigma(i,:) = std(fixed_sample{:,1:4});
+            stats.fixed_n(i) =  size(fixed_sample{:,1:4},1);
 
+            for j = 1:N_precision_types
+            
+                stats.p_value(i,j) = ranksum(...
+                    fixed_sample.(stats.precision_dim(j)),...
+                    live_sample.(stats.precision_dim(j)),...
+                    "tail","left");
+            
+            end
+
+        end
+
+    end    
+
+    % saveStats(stats,output_folder)
 
 end %----------------------------------------------------------------------
 
