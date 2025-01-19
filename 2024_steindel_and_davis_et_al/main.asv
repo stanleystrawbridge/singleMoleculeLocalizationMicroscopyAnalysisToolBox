@@ -5,7 +5,7 @@ addpath('src')
 
 data_sets = {'small_data_set_out','large_data_set_out'};
 
-for i = 1%:numel(data_sets)
+for i = 2%:numel(data_sets)
    
     output_folder = fullfile('output',data_sets{i});
     mkSaveFolder(output_folder)   
@@ -16,7 +16,7 @@ for i = 1%:numel(data_sets)
 
     stats = calculateStatistics(precision,output_folder);
     
-    % plotPrecision(precision,stats,output_folder);
+    plotPrecision(precision,stats,output_folder);
 
 end
 
@@ -183,7 +183,7 @@ function stats = calculateStatistics(precision,output_folder) %------------
         stats.group_name = erase(unique_groups,'_fixed');
         stats.group_name = erase(stats.group_name,'_live');
         stats.group_name = unique(stats.group_name);
-        N_groups = numel(fixed_group_names);
+        N_groups = numel(stats.group_name);
 
         stats.p_value = zeros(N_groups, N_precision_types);
 
@@ -262,11 +262,13 @@ function saveStats(stats,output_folder) %----------------------------------
 
     for i = 1:2
 
+        n_groups = size(stats.(strcat(sample_type(i), "_mu")),1);
+
         fprintf(fileID,strcat("Mean (nm) of ", sample_type(i),...
             " cell precision\n\n"));
         fprintf(fileID,'%-10s %-10s %-10s %-10s %-10s\n',...
             "Condition", stats.precision_dim);
-        for j = 1:numel(stats.group_name)
+        for j = 1:n_groups
             fprintf(fileID,'%-10s %-10.4f %-10.4f %-10.4f %-10.4f\n',...
                 stats.group_name(j),stats.(strcat(sample_type(i), "_mu"))(j,:));
         end
@@ -276,7 +278,7 @@ function saveStats(stats,output_folder) %----------------------------------
             sample_type(i), " cell precision\n\n"));
         fprintf(fileID,'%-10s %-10s %-10s %-10s %-10s\n',...
             "Condition", stats.precision_dim);
-        for j = 1:numel(stats.group_name)
+        for j = 1:n_groups
             fprintf(fileID,'%-10s %-10.4f %-10.4f %-10.4f %-10.4f\n',...
                 stats.group_name(j),stats.(strcat(sample_type(i), "_sigma"))(j,:));
         end    
@@ -286,7 +288,7 @@ function saveStats(stats,output_folder) %----------------------------------
             " cell precision\n\n"));        
         fprintf(fileID,'%-10s %-10s\n',...
             "Condition", "N");
-        for j = 1:numel(stats.group_name)
+        for j = 1:n_groups
             fprintf(fileID,'%-10s %-10u\n',...
                 stats.group_name(j),stats.(strcat(sample_type(i), "_n"))(j,:));
         end    
@@ -294,60 +296,34 @@ function saveStats(stats,output_folder) %----------------------------------
 
     end
         
-    fclose(fileID);
-
-    
-    
-       
-    
-   
-
-    fprintf(fileID,'GROUPS\n');    
-    for i = 1:numel(stats(1).kwGnames)
-        fprintf(fileID,'%-2s %-10s\n', num2str(i), stats(1).kwGnames{i});
-    end
-    fprintf(fileID,'\n\n');
-
-    for i = 1:numel(stats)    
-        fprintf(fileID,'precision %-10s\n\n',stats(i).dim);    
-        fprintf(fileID,'%-4s %-4s %-7s %-7s \n','g1','g2','ANOVA','K-W');
-        fprintf(fileID,'%-4u %-4u %-7.4f %-7.4f \n',...
-            [stats(i).anovaMulticomp(:,[1 2 6]),...
-            stats(i).kwMulticomp(:,6)]');
-        fprintf(fileID,'\n\n');
-    end
-
+    fclose(fileID);       
 
 end %----------------------------------------------------------------------
 
 
-function plotPrecision(precision,stats,output_folder) %--------------------
+function plotPrecision(precision,output_folder) %--------------------------
 
     if contains(output_folder,'small')
-
-        
-
+        groupOrder = ["WT_2iL_live","KO_2iL_live",...
+            "WT_FA_live","KO_FA_live", "WT_2iL_fixed"];
     else
-
-
-
+        groupOrder = ["WT_2iL_live","WT_2iL_fixed",...
+            "KO_2iL_live","KO_2iL_fixed",...
+            "WT_FA_live","WT_FA_fixed",...
+            "KO_FA_live","KO_FA_fixed"];
     end
 
-    % group_names = ...
-    %     strcat(precision.mll2,'_',precision.media,'_',precision.status);
-    % 
-    % figure(1)
-    % clf
-    % 
-    % if numel(group_names) == 5
-    % 
-    % else
-    % 
-    % end
-    % boxplot(precision.x_std,...
-    %     strcat(precision.mll2,'_',precision.media,'_',precision.status));
-    % 
-    % ylim([0,max(precision.x_std)])
+    group_names = ...
+        strcat(precision.mll2,'_',precision.media,'_',precision.status);
+
+    precisions_dim = ["x_std", "y_std", "z_std", "overall"];
+    
+    figure(1)
+    clf
+
+    boxplot(precision.x_std,group_names,"GroupOrder",groupOrder);
+
+    ylim([0,max(precision.x_std)])
 
 end %----------------------------------------------------------------------
 

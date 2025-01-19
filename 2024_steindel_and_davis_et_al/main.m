@@ -5,7 +5,7 @@ addpath('src')
 
 data_sets = {'small_data_set_out','large_data_set_out'};
 
-for i = 1:numel(data_sets)
+for i = 2%:numel(data_sets)
    
     output_folder = fullfile('output',data_sets{i});
     mkSaveFolder(output_folder)   
@@ -16,7 +16,7 @@ for i = 1:numel(data_sets)
 
     stats = calculateStatistics(precision,output_folder);
     
-    % plotPrecision(precision,stats,output_folder);
+    plotPrecision(precision,stats,output_folder);
 
 end
 
@@ -301,35 +301,35 @@ function saveStats(stats,output_folder) %----------------------------------
 end %----------------------------------------------------------------------
 
 
-function plotPrecision(precision,stats,output_folder) %--------------------
-
-    sample_order = ["WT_2iL","KO_2iL","WT_FA","KO_FA"];
+function plotPrecision(precision,output_folder) %--------------------------
 
     if contains(output_folder,'small')
-
-    
-
+        groupOrder = ["WT_2iL_live","KO_2iL_live",...
+            "WT_FA_live","KO_FA_live", "WT_2iL_fixed"];
     else
-
-
-
+        groupOrder = ["WT_2iL_live","WT_2iL_fixed",...
+            "KO_2iL_live","KO_2iL_fixed",...
+            "WT_FA_live","WT_FA_fixed",...
+            "KO_FA_live","KO_FA_fixed"];
     end
 
-    % group_names = ...
-    %     strcat(precision.mll2,'_',precision.media,'_',precision.status);
-    % 
-    % figure(1)
-    % clf
-    % 
-    % if numel(group_names) == 5
-    % 
-    % else
-    % 
-    % end
-    % boxplot(precision.x_std,...
-    %     strcat(precision.mll2,'_',precision.media,'_',precision.status));
-    % 
-    % ylim([0,max(precision.x_std)])
+    group_names = ...
+        strcat(precision.mll2,'_',precision.media,'_',precision.status);
+
+    precisions_dim = string(precision.Properties.VariableNames(1:4));
+
+
+
+    for i = 1:numel(precisions_dim)
+           
+        figure(i)
+        clf
+
+        boxplot(precision.(precisions_dim(i)),group_names,"GroupOrder",groupOrder);
+    
+        ylim([0,max(precision.(precisions_dim(i)))])
+
+    end
 
 end %----------------------------------------------------------------------
 
