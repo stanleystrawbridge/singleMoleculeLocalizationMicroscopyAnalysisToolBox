@@ -270,7 +270,7 @@ function saveStats(stats,output_folder) %----------------------------------
             "Condition", stats.precision_dim);
         for j = 1:n_groups
             fprintf(fileID,'%-10s %-10.4f %-10.4f %-10.4f %-10.4f\n',...
-                stats.group_name(j),stats.(strcat(sample_type(i), "_mu"))(j,:));
+                stats.group_name(j),stats.(strcat(sample_type(i),"_mu"))(j,:));
         end
         fprintf(fileID,'\n\n');
 
@@ -280,7 +280,7 @@ function saveStats(stats,output_folder) %----------------------------------
             "Condition", stats.precision_dim);
         for j = 1:n_groups
             fprintf(fileID,'%-10s %-10.4f %-10.4f %-10.4f %-10.4f\n',...
-                stats.group_name(j),stats.(strcat(sample_type(i), "_sigma"))(j,:));
+                stats.group_name(j),stats.(strcat(sample_type(i),"_sigma"))(j,:));
         end    
         fprintf(fileID,'\n\n');
 
@@ -289,8 +289,8 @@ function saveStats(stats,output_folder) %----------------------------------
         fprintf(fileID,'%-10s %-10s\n',...
             "Condition", "N");
         for j = 1:n_groups
-            fprintf(fileID,'%-10s %-10u\n',...
-                stats.group_name(j),stats.(strcat(sample_type(i), "_n"))(j,:));
+            fprintf(fileID,'%-10s %-10u\n',stats.group_name(j),...
+                stats.(strcat(sample_type(i), "_n"))(j,:));
         end    
         fprintf(fileID,'\n\n');
 
@@ -325,7 +325,8 @@ function plotPrecision(precision,output_folder) %--------------------------
         figure(i)
         clf
 
-        boxplot(precision.(precisions_dim(i)),group_names,"GroupOrder",groupOrder);
+        boxplot(precision.(precisions_dim(i)),group_names, ...
+            "GroupOrder",groupOrder);
             
         ylim([0,max(precision.(precisions_dim(i)))])
         
@@ -337,37 +338,3 @@ end %----------------------------------------------------------------------
 
 % FUNCTIONS ===============================================================
 % =========================================================================
-
-
-
-
-% ARCHIVE
-
-% CritValType = "lsd";
-%
-% group_names = ...
-%     strcat(precision.mll2,'_',precision.media,'_',precision.status);
-% unique_groups = unique(group_names);
-% 
-% stats = struct('dim',{'x_std','y_std','z_std','overall'},...
-%     'anovaP',[],'anova',[],'anovaMulticomp',[],'anovaGnames',[],...
-%     'kwP',[],'kw',[],'kwMulticomp',[],'kwGnames',[]); 
-% for i = 1:numel(stats)
-% 
-%     % N-Way ANOVA (parametric)
-%     [stats(i).anovaP,~,stats(i).anova] = ...
-%         anovan(precision.(stats(i).dim),{group_names},"display","off");
-%     [stats(i).anovaMulticomp,~,~,stats(i).anovaGnames] = ...
-%         multcompare(stats(i).anova,"CriticalValueType",...
-%         CritValType,"display","off");        
-% 
-%     % Kruskal-Wallis Test (nonparametric)
-%     [stats(i).kwP,~,stats(i).kw] = kruskalwallis(...
-%         precision.(stats(i).dim),group_names,"off");
-%     [stats(i).kwMulticomp,~,~,stats(i).kwGnames] = ...
-%         multcompare(stats(i).kw,"CriticalValueType",...
-%         CritValType,"display","off");                   
-% 
-% end        
-% 
-% saveStats(stats,output_folder);
