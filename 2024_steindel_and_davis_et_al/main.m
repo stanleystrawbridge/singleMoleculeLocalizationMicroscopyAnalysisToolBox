@@ -5,7 +5,7 @@ addpath('src')
 
 data_sets = {'small_data_set_out','large_data_set_out'};
 
-for i = 1%:numel(data_sets)
+for i = 1:numel(data_sets)
    
     output_folder = fullfile('output',data_sets{i});
     mkSaveFolder(output_folder)   
@@ -172,6 +172,8 @@ function stats = calculateStatistics(precision,output_folder) %------------
     
         end
         
+        stats.group_name = erase(stats.group_name,'_live');
+
         % Bonferoni correction
         stats.p_value = stats.p_value * N_live_groups;
 
@@ -181,7 +183,7 @@ function stats = calculateStatistics(precision,output_folder) %------------
         stats.group_name = erase(unique_groups,'_fixed');
         stats.group_name = erase(stats.group_name,'_live');
         stats.group_name = unique(stats.group_name);
-        N_groups = numel(fixed_group_names);
+        N_groups = numel(stats.group_name);
 
         stats.p_value = zeros(N_groups, N_precision_types);
 
@@ -224,7 +226,7 @@ function stats = calculateStatistics(precision,output_folder) %------------
 
     end    
 
-    % saveStats(stats,output_folder)
+    saveStats(stats,output_folder)
 
 end %----------------------------------------------------------------------
 
@@ -244,48 +246,68 @@ function saveStats(stats,output_folder) %----------------------------------
         string(extractBetween(output_folder, '\','_out')));
     fprintf(fileID,'\n\n');
 
-    if contains(output_folder,'small')
 
-        
-
-    else
-
-
-
-    end
+    fprintf(fileID,'P-value against fixed control(s)\n\n');
     
-    fclose(fileID);
+    fprintf(fileID,'%-10s %-10s %-10s %-10s %-10s\n',...
+        "Condition", stats.precision_dim);
 
-    
-    
-       
-    
-   
-
-    fprintf(fileID,'GROUPS\n');    
-    for i = 1:numel(stats(1).kwGnames)
-        fprintf(fileID,'%-2s %-10s\n', num2str(i), stats(1).kwGnames{i});
+    for i = 1:numel(stats.group_name)
+        fprintf(fileID,'%-10s %-10.4f %-10.4f %-10.4f %-10.4f\n',...
+            stats.group_name(i),stats.p_value(i,:));
     end
     fprintf(fileID,'\n\n');
+        
+    sample_type = ["live" "fixed"];
 
-    for i = 1:numel(stats)    
-        fprintf(fileID,'precision %-10s\n\n',stats(i).dim);    
-        fprintf(fileID,'%-4s %-4s %-7s %-7s \n','g1','g2','ANOVA','K-W');
-        fprintf(fileID,'%-4u %-4u %-7.4f %-7.4f \n',...
-            [stats(i).anovaMulticomp(:,[1 2 6]),...
-            stats(i).kwMulticomp(:,6)]');
+    for i = 1:2
+
+        n_groups = size(stats.(strcat(sample_type(i), "_mu")),1);
+
+        fprintf(fileID,strcat("Mean (nm) of ", sample_type(i),...
+            " cell precision\n\n"));
+        fprintf(fileID,'%-10s %-10s %-10s %-10s %-10s\n',...
+            "Condition", stats.precision_dim);
+        for j = 1:n_groups
+            fprintf(fileID,'%-10s %-10.4f %-10.4f %-10.4f %-10.4f\n',...
+                stats.group_name(j),stats.(strcat(sample_type(i), "_mu"))(j,:));
+        end
         fprintf(fileID,'\n\n');
-    end
 
+        fprintf(fileID,strcat("Standard deviation (nm) of ",...
+            sample_type(i), " cell precision\n\n"));
+        fprintf(fileID,'%-10s %-10s %-10s %-10s %-10s\n',...
+            "Condition", stats.precision_dim);
+        for j = 1:n_groups
+            fprintf(fileID,'%-10s %-10.4f %-10.4f %-10.4f %-10.4f\n',...
+                stats.group_name(j),stats.(strcat(sample_type(i), "_sigma"))(j,:));
+        end    
+        fprintf(fileID,'\n\n');
+
+        fprintf(fileID,strcat("Sample number of ", sample_type(i),...
+            " cell precision\n\n"));        
+        fprintf(fileID,'%-10s %-10s\n',...
+            "Condition", "N");
+        for j = 1:n_groups
+            fprintf(fileID,'%-10s %-10u\n',...
+                stats.group_name(j),stats.(strcat(sample_type(i), "_n"))(j,:));
+        end    
+        fprintf(fileID,'\n\n');
+
+    end
+        
+    fclose(fileID);       
 
 end %----------------------------------------------------------------------
 
 
 function plotPrecision(precision,stats,output_folder) %--------------------
 
+    sample_order = ["WT_2iL","KO_2iL","WT_FA","KO_FA"];
+
     if contains(output_folder,'small')
 
-        
+    
 
     else
 

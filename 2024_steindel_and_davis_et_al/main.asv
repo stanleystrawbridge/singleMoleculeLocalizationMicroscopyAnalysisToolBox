@@ -14,9 +14,9 @@ for i = 1%:numel(data_sets)
     
     precision = calculatePrecision(data_files);
 
-    % stats = calculateStatistics(precision,output_folder);
+    stats = calculateStatistics(precision,output_folder);
     
-    % plotPrecision(precision,data_sets{i},output_folder);
+    % plotPrecision(precision,stats,output_folder);
 
 end
 
@@ -142,23 +142,25 @@ function stats = calculateStatistics(precision,output_folder) %------------
         N_live_groups = numel(live_group_names);
 
         stats.group_name = live_group_names;
-        stats.p_value = zeros(N_live_groups, N_precision_types);
-        
-        stats.p_adjusted = stats.p_value;
+        stats.p_value = zeros(N_live_groups, N_precision_types);               
         
         stats.live_mu = stats.p_value;
         stats.live_sigma = stats.p_value;
-        stats.live_n = ;
+        stats.live_n =  stats.p_value(:,1);
 
         stats.fixed_mu = mean(fixed_sample{:,1:4});
         stats.fixed_sigma = std(fixed_sample{:,1:4});
-        stats.live_n = ;
-        
+        stats.fixed_n = size(fixed_sample{:,1:4},1);
+
         for i = 1:N_live_groups
 
             live_sample_idx = strcmp(group_names,live_group_names(i));
             live_sample = precision(live_sample_idx,:);
-    
+        
+            stats.live_mu(i,:) = mean(live_sample{:,1:4});
+            stats.live_sigma(i,:) = std(live_sample{:,1:4});
+            stats.live_n(i) =  size(live_sample{:,1:4},1);
+
             for j = 1:N_precision_types
                 
                 stats.p_value(i,j) = ranksum(...
@@ -170,8 +172,10 @@ function stats = calculateStatistics(precision,output_folder) %------------
     
         end
         
+        stats.group_name = erase(stats.group_name,'_live');
+
         % Bonferoni correction
-        stats.p_adjusted = stats.p_value * N_live_groups;
+        stats.p_value = stats.p_value * N_live_groups;
 
     else
 
@@ -183,6 +187,14 @@ function stats = calculateStatistics(precision,output_folder) %------------
 
         stats.p_value = zeros(N_groups, N_precision_types);
 
+        stats.live_mu = stats.p_value;
+        stats.live_sigma = stats.p_value;
+        stats.live_n =  stats.p_value(:,1);
+
+        stats.fixed_mu = stats.p_value;
+        stats.fixed_sigma = stats.p_value;
+        stats.fixed_n =  stats.p_value(:,1);
+
         for i = 1:N_groups            
             
             fixed_sample_idx = strcmp(group_names,...
@@ -192,6 +204,14 @@ function stats = calculateStatistics(precision,output_folder) %------------
             live_sample_idx = strcmp(group_names,...
                 strcat(stats.group_name(i),'_live'));
             live_sample = precision(live_sample_idx,:);
+
+            stats.live_mu(i,:) = mean(live_sample{:,1:4});
+            stats.live_sigma(i,:) = std(live_sample{:,1:4});
+            stats.live_n(i) = size(live_sample{:,1:4},1);
+    
+            stats.fixed_mu(i,:) = mean(fixed_sample{:,1:4});
+            stats.fixed_sigma(i,:) = std(fixed_sample{:,1:4});
+            stats.fixed_n(i) =  size(fixed_sample{:,1:4},1);
 
             for j = 1:N_precision_types
             
@@ -206,6 +226,8 @@ function stats = calculateStatistics(precision,output_folder) %------------
 
     end    
 
+    saveStats(stats,output_folder)
+
 end %----------------------------------------------------------------------
 
 
@@ -216,13 +238,69 @@ function saveStats(stats,output_folder) %----------------------------------
     save(obj_save_name,"stats")
     
     % Write data to text file______________________________________________
+
     txt_save_name = fullfile(output_folder,"stats.txt");
-    
-    fileID = fopen( txt_save_name,'w');     
-    
+    fileID = fopen( txt_save_name,'w'); 
+
     fprintf(fileID,'%-20s\n',...
         string(extractBetween(output_folder, '\','_out')));
     fprintf(fileID,'\n\n');
+
+
+    fprintf(fileID,'P-value against fixed control(s)\n\n');
+    
+    fprintf(fileID,'%-10s %-10s %-10s %-10s %-10s\n',...
+        "Condition", stats.precision_dim);
+
+    for i = 1:numel(stats.group_name)
+        fprintf(fileID,'%-10s %-10.4f %-10.4f %-10.4f %-10.4f\n',...
+            stats.group_name(i),stats.p_value(i,:));
+    end
+    fprintf(fileID,'\n\n');
+        
+    sample_type = ["live" "fixed"];
+
+    for i = 1:2
+
+        fprintf(fileID,strcat("Mean (nm) of ", sample_type(i),...
+            " cell precision\n\n"));
+        fprintf(fileID,'%-10s %-10s %-10s %-10s %-10s\n',...
+            "Condition", stats.precision_dim);
+        for j = 1:numel(stats.group_name)
+            fprintf(fileID,'%-10s %-10.4f %-10.4f %-10.4f %-10.4f\n',...
+                stats.group_name(j),stats.(strcat(sample_type(i), "_mu"))(j,:));
+        end
+        fprintf(fileID,'\n\n');
+
+        fprintf(fileID,strcat("Standard deviation (nm) of ",...
+            sample_type(i), " cell precision\n\n"));
+        fprintf(fileID,'%-10s %-10s %-10s %-10s %-10s\n',...
+            "Condition", stats.precision_dim);
+        for j = 1:numel(stats.group_name)
+            fprintf(fileID,'%-10s %-10.4f %-10.4f %-10.4f %-10.4f\n',...
+                stats.group_name(j),stats.(strcat(sample_type(i), "_sigma"))(j,:));
+        end    
+        fprintf(fileID,'\n\n');
+
+        fprintf(fileID,strcat("Sample number of ", sample_type(i),...
+            " cell precision\n\n"));        
+        fprintf(fileID,'%-10s %-10s\n',...
+            "Condition", "N");
+        for j = 1:numel(stats.group_name)
+            fprintf(fileID,'%-10s %-10u\n',...
+                stats.group_name(j),stats.(strcat(sample_type(i), "_n"))(j,:));
+        end    
+        fprintf(fileID,'\n\n');
+
+    end
+        
+    fclose(fileID);
+
+    
+    
+       
+    
+   
 
     fprintf(fileID,'GROUPS\n');    
     for i = 1:numel(stats(1).kwGnames)
@@ -238,29 +316,38 @@ function saveStats(stats,output_folder) %----------------------------------
             stats(i).kwMulticomp(:,6)]');
         fprintf(fileID,'\n\n');
     end
-    fclose(fileID);
+
 
 end %----------------------------------------------------------------------
 
 
-function plotPrecision(precision,output_folder) %--------------------------
+function plotPrecision(precision,stats,output_folder) %--------------------
 
-    group_names = ...
-        strcat(precision.mll2,'_',precision.media,'_',precision.status);
+    if contains(output_folder,'small')
 
-    figure(1)
-    clf
-
-    if numel(group_names) == 5
+        
 
     else
-    
+
+
+
     end
-    boxplot(precision.x_std,...
-        strcat(precision.mll2,'_',precision.media,'_',precision.status));
 
-    ylim([0,max(precision.x_std)])
-
+    % group_names = ...
+    %     strcat(precision.mll2,'_',precision.media,'_',precision.status);
+    % 
+    % figure(1)
+    % clf
+    % 
+    % if numel(group_names) == 5
+    % 
+    % else
+    % 
+    % end
+    % boxplot(precision.x_std,...
+    %     strcat(precision.mll2,'_',precision.media,'_',precision.status));
+    % 
+    % ylim([0,max(precision.x_std)])
 
 end %----------------------------------------------------------------------
 
