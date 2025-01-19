@@ -5,7 +5,7 @@ addpath('src')
 
 data_sets = {'small_data_set_out','large_data_set_out'};
 
-for i = 2%:numel(data_sets)
+for i = 1:numel(data_sets)
    
     output_folder = fullfile('output',data_sets{i});
     mkSaveFolder(output_folder)   
@@ -16,7 +16,7 @@ for i = 2%:numel(data_sets)
 
     stats = calculateStatistics(precision,output_folder);
     
-    plotPrecision(precision,stats,output_folder);
+    plotPrecision(precision,output_folder);
 
 end
 
@@ -326,8 +326,10 @@ function plotPrecision(precision,output_folder) %--------------------------
         clf
 
         boxplot(precision.(precisions_dim(i)),group_names,"GroupOrder",groupOrder);
-    
+            
         ylim([0,max(precision.(precisions_dim(i)))])
+        
+        grid on
 
     end
 
